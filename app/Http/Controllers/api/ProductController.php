@@ -3,47 +3,42 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // TODO: best seller
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        // TODO: store new product by user
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
+        // TODO: show specifc product
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        //
+        // TODO: not sure but maybe product??
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
+        // TODO: delete product by user
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->query('query');
+
+        $products = Product::where('name', 'like', "%{$query}%")->get();
+
+        return $products;
     }
 }

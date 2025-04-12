@@ -5,30 +5,30 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class OrderController extends Controller
+class PendingProductController extends Controller
 {
     public function index()
     {
-        // TODO: get all user orders
+        // TODO: best seller
     }
 
     public function store(Request $request)
     {
-        // TODO: make a new order
+        // TODO: store new product by user
     }
 
     public function show(string $id)
     {
-        // TODO: get specific order
+        // TODO: show specifc product
     }
 
     public function update(Request $request, string $id)
     {
-        // TODO: update order details maybe??
+        // TODO: not sure but maybe product??
     }
 
     public function destroy(string $id)
     {
-        // TODO: cancel order
+        // TODO: delete product by user
     }
 }
