@@ -16,7 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
+use Illuminate\Database\Eloquent\Builder;
 use function GuzzleHttp\default_ca_bundle;
 
 class ProductResource extends Resource
@@ -43,6 +43,10 @@ class ProductResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                TextInput::make('slug')
+                    ->required()
+                    ->hidden()
+                    ->maxLength(255),
                 TextInput::make('description')
                     ->required(),
                 Select::make('currency')
@@ -53,7 +57,7 @@ class ProductResource extends Resource
                         'eur' => 'EUR',
                         'gbp' => 'GBP',
                     ])
-                    ->default('usd')
+                    ->default('egp')
                     ->live(),
                 TextInput::make('price')
                     ->required()
@@ -80,7 +84,9 @@ class ProductResource extends Resource
                 Select::make('user_id')
                     ->required()
                     ->label('User')
-                    ->relationship('user', 'email')
+                    ->relationship('user', 'email', modifyQueryUsing: fn(Builder $query) => $query->whereHas('roles', function ($q) {
+                        return $q->where('name', 'designer');
+                    }))
                     ->searchable()
                     ->preload(),
                 Select::make('category_id')

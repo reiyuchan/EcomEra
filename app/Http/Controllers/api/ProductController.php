@@ -4,33 +4,39 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        // TODO: best seller
+        $products = cache()->rememberForever('products', function () {
+            return Product::paginate();
+        });
+
+        abort_if(!$products, Response::HTTP_NOT_FOUND);
+
+        return response()->json([
+            'data' => $products,
+        ], Response::HTTP_OK);;
     }
 
-    public function store(Request $request)
+    public function show(Product $product)
     {
-        // TODO: store new product by user
+        return response()->json([
+            'data' => $product,
+        ], Response::HTTP_OK);;
     }
 
-    public function show(string $id)
+    public function showByUser(User $user)
     {
-        // TODO: show specifc product
-    }
+        $products = $user->products()->get();
 
-    public function update(Request $request, string $id)
-    {
-        // TODO: not sure but maybe product??
-    }
-
-    public function destroy(string $id)
-    {
-        // TODO: delete product by user
+        return response()->json([
+            'data' => $products,
+        ], Response::HTTP_OK);
     }
 
     public function search(Request $request)
@@ -39,6 +45,25 @@ class ProductController extends Controller
 
         $products = Product::where('name', 'like', "%{$query}%")->get();
 
-        return $products;
+        abort_if(!$products, Response::HTTP_NOT_FOUND);
+
+        return response()->json([
+            'data' => $products,
+        ], Response::HTTP_OK);;
+    }
+
+    public function bestSelling(Request $request)
+    {
+        $limit = $request->query('limit');
+
+        $bestSelling =  cache()->remember('best_selling', now()->addDays(1), function () use ($limit) {
+            return  Product::sortByBestSelling($limit);
+        });
+
+        abort_if(!$bestSelling, Response::HTTP_NOT_FOUND);
+
+        return response()->json([
+            'data' => $bestSelling,
+        ], Response::HTTP_OK);;
     }
 }

@@ -9,14 +9,14 @@ class PendingProduct extends Model
 {
     protected $fillable = [
         'name',
+        'slug',
+        'details',
         'description',
+        'product_code',
         'price',
         'quantity',
         'images',
-        'approved',
         'user_id',
-        'product_id',
-        'category_id',
     ];
 
     protected $casts = [

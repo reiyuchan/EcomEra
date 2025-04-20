@@ -21,9 +21,12 @@ return new class extends Migration
             $table->string('billing_city')->nullable();
             $table->string('billing_state')->nullable();
             $table->string('billing_zip_code')->nullable();
-            $table->string('billing_subtotal');
-            $table->integer('billing_total');
+            $table->string('billing_discount_code')->nullable();
+            $table->decimal('billing_discount', 10, 2)->default(0);
+            $table->decimal('billing_subtotal', 10, 2);
+            $table->decimal('billing_total', 10, 2);
             $table->boolean('shipped')->default(false);
+            $table->boolean('cancelled')->default(false);
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

@@ -5,9 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PendingProductResource\Pages;
 use App\Models\PendingProduct;
 use App\Models\Product;
-use App\Models\User;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -18,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PendingProductResource extends Resource
 {
@@ -53,7 +52,7 @@ class PendingProductResource extends Resource
                         'eur' => 'EUR',
                         'gbp' => 'GBP',
                     ])
-                    ->default('usd')
+                    ->default('EGP')
                     ->live(),
                 TextInput::make('price')
                     ->required()
@@ -80,7 +79,9 @@ class PendingProductResource extends Resource
                 Select::make('user_id')
                     ->required()
                     ->label('User')
-                    ->relationship('user', 'email')
+                    ->relationship('user', 'email', modifyQueryUsing: fn(Builder $query) => $query->whereHas('roles', function ($q) {
+                        return $q->where('name', 'designer');
+                    }))
                     ->searchable()
                     ->preload(),
                 Select::make('category_id')
@@ -108,9 +109,9 @@ class PendingProductResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
-                TextColumn::make('status')->badge()->color(fn(int $state): string => match ($state) {
-                    0 => 'warning',
-                    1 => 'success',
+                TextColumn::make('approved')->badge()->color(fn(int $state): string => match ($state) {
+                    false => 'warning',
+                    true => 'success',
                 }),
             ])
             ->filters([
@@ -123,7 +124,7 @@ class PendingProductResource extends Resource
                     ->action(function (PendingProduct $product, array $data) {
                         Product::create($data);
                         $product->update([
-                            'status' => 1,
+                            'approved' => true,
                         ]);
                     }),
 

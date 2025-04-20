@@ -54,6 +54,18 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    'frontend_verify_route' => env('FRONTEND_VERIFY_ROUTE', '/verify-email'),
+    'frontend_reset_route' => env('FRONTEND_RESET_ROUTE', '/reset-password'),
+    'frontend_unsubscribe_route' => env('FRONTEND_UNSUBSCRIBE_ROUTE', '/mail-unsubscribe'),
+
+    'social_media' => [
+        'facebook' => env('FACEBOOK_URL'),
+        'instagram' => env('INSTAGRAM_URL'),
+        'tiktok' => env('TIKTOK_URL'),
+        'x' => env('X_URL'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
