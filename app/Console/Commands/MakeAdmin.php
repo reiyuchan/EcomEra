@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
 
 class MakeAdmin extends Command
 {
@@ -43,13 +44,20 @@ class MakeAdmin extends Command
                 return $this->error('User already exists');
             }
 
+
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
-                'password' => $password,
+                'password' => $password
             ]);
 
+            $slug = Str::slug($user->name . " " . Str::random() . $user->id);
+
+            $user->slug = $slug;
+            $user->save();
+
             $user->assignRole($adminRole);
+            $user->givePermissionTo(['create', 'view', 'edit', 'delete']);
 
             $this->info("{$user->email} user created successfully...");
         }

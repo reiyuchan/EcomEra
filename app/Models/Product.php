@@ -6,7 +6,7 @@ use Binafy\LaravelCart\Cartable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model implements Cartable
 {
@@ -21,7 +21,6 @@ class Product extends Model implements Cartable
         'product_code',
         'images',
         'user_id',
-        'category_id',
     ];
 
     protected $casts = [
@@ -29,19 +28,21 @@ class Product extends Model implements Cartable
         'price' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        self::deleted(function (Product $record) {
+            Storage::disk('public')->delete($record->images);
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function category(): BelongsToMany
+    public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
-    }
-
-    public function pendingProduct(): HasOne
-    {
-        return $this->hasOne(PendingProduct::class);
     }
 
     public function orders(): BelongsToMany
@@ -56,6 +57,11 @@ class Product extends Model implements Cartable
         }
 
         return (float) $this->price;
+    }
+
+    public function getDiscountedPrice(): float
+    {
+        return $this->discounted_price;
     }
 
     public function sortByBestSelling($limit = 10)

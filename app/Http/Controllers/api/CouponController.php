@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Coupons\Coupon;
 use Binafy\LaravelCart\Models\Cart;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class CouponController extends Controller
     {
         $couponCode = Coupon::findByCode($coupon_code);
 
-        abort_if(!$couponCode, Response::HTTP_NOT_FOUND, "couldn't find the coupon. Please try again!");
+        abort_if(!$couponCode, Response::HTTP_NOT_FOUND, "couldn't find the coupon or coupon expired. Please try again!");
 
         $coupon = $couponCode->couponable;
 

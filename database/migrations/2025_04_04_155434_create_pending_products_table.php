@@ -17,13 +17,13 @@ return new class extends Migration
             $table->string('slug')->default('');
             $table->string('details');
             $table->text('description');
-            $table->decimal('price', 10, 2);
-            $table->decimal('discounted_price', 10, 2);
+            $table->decimal('price', 10, 2)->default(0);
+            $table->decimal('discounted_price', 10, 2)->default(0);
             $table->unsignedInteger('quantity')->default(0);
-            $table->string('product_code');
+            $table->string('product_code')->nullable();
             $table->json('images')->nullable();
+            $table->boolean('approved')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

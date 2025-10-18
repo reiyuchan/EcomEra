@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Commissions\Commission;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -49,6 +51,13 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'password' => 'hashed',
     ];
 
+    protected static function booted(): void
+    {
+        self::deleted(function (User $record) {
+            Storage::disk('public')->delete($record->image);
+        });
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole('admin', 'mod');
@@ -77,5 +86,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function referral(): HasOne
     {
         return $this->hasOne(Referral::class);
+    }
+
+    public function commissions(): HasMany
+    {
+        return $this->hasMany(Commission::class);
     }
 }

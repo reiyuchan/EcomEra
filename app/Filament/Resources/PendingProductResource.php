@@ -4,8 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PendingProductResource\Pages;
 use App\Models\PendingProduct;
-use App\Models\Product;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -13,10 +14,9 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class PendingProductResource extends Resource
 {
@@ -30,6 +30,11 @@ class PendingProductResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'description', 'price'];
@@ -42,6 +47,9 @@ class PendingProductResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                TextInput::make('details')
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('description')
                     ->required(),
                 Select::make('currency')
@@ -52,7 +60,7 @@ class PendingProductResource extends Resource
                         'eur' => 'EUR',
                         'gbp' => 'GBP',
                     ])
-                    ->default('EGP')
+                    ->default('egp')
                     ->live(),
                 TextInput::make('price')
                     ->required()
@@ -69,25 +77,38 @@ class PendingProductResource extends Resource
                         default => null,
                     })
                     ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters(','),
+                TextInput::make('discounted_price')
+                    ->required()
+                    ->numeric()
+                    ->rules(['gte:0'])
+                    ->prefix(fn(Get $get) => match ($get('currency')) {
+                        'usd' => '$',
+                        'gbp' => '£',
+                        default => null,
+                    })
+                    ->suffix(fn(Get $get) => match ($get('currency')) {
+                        'eur' => '€',
+                        'egp' => '£',
+                        default => null,
+                    })
+                    ->mask(RawJs::make('$money($input)'))
                     ->stripCharacters(',')
                     ->default(0),
                 TextInput::make('quantity')
                     ->required()
                     ->integer()
-                    ->rules(['gt:0'])
-                    ->default(0),
+                    ->rules(['gt:0']),
                 Select::make('user_id')
                     ->required()
                     ->label('User')
-                    ->relationship('user', 'email', modifyQueryUsing: fn(Builder $query) => $query->whereHas('roles', function ($q) {
-                        return $q->where('name', 'designer');
-                    }))
+                    ->relationship('user', 'email')
                     ->searchable()
                     ->preload(),
                 Select::make('category_id')
                     ->required()
                     ->label('Category')
-                    ->relationship('category', 'name')
+                    ->relationship('categories', 'name')
                     ->createOptionForm([
                         TextInput::make('name')
                             ->required()
@@ -95,12 +116,15 @@ class PendingProductResource extends Resource
                     ])
                     ->searchable()
                     ->preload(),
+                Checkbox::make('approved'),
                 FileUpload::make('images')
                     ->required()
                     ->multiple()
                     ->moveFiles()
-                    ->directory('products')
-                    ->image(),
+                    ->directory('images/products')
+                    ->image()
+                    ->reorderable()
+                    ->appendFiles(),
             ]);
     }
 
@@ -108,27 +132,22 @@ class PendingProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('approved')->badge()->color(fn(int $state): string => match ($state) {
-                    false => 'warning',
-                    true => 'success',
-                }),
+                TextColumn::make('name')->sortable(),
+                ImageColumn::make('images')->size(128)->sortable(),
+                TextColumn::make('categories.name')->badge()->sortable(),
+                TextColumn::make('approved')->badge()->color(fn(string $state): string => match ($state) {
+                    'pending' => 'warning',
+                    'approved' => 'success',
+                })->getStateUsing(function (PendingProduct $pendingProduct) {
+                    return $pendingProduct->approved ? 'approved' : 'pending';
+                })->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Action::make('approve')
-                    ->icon('heroicon-o-check-circle')
-                    ->size('md')
-                    ->action(function (PendingProduct $product, array $data) {
-                        Product::create($data);
-                        $product->update([
-                            'approved' => true,
-                        ]);
-                    }),
-
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->hidden(fn(PendingProduct $record) => $record->approved),
+                Tables\Actions\DeleteAction::make()->visible(fn(PendingProduct $record) => $record->approved),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

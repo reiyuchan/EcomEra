@@ -4,10 +4,10 @@ namespace App\Providers;
 
 use App\Models\User;
 use Filament\Notifications\Auth\ResetPassword;
-use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\URL;
+// use Illuminate\Auth\Notifications\VerifyEmail;
+// use Illuminate\Support\Carbon;
+// use Illuminate\Support\Facades\Config;
+// use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

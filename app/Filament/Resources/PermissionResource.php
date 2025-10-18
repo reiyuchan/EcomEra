@@ -21,6 +21,11 @@ class PermissionResource extends Resource
 
     protected static ?string $navigationGroup = 'User Management';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -38,7 +43,7 @@ class PermissionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name')->sortable(),
             ])
             ->filters([
                 //

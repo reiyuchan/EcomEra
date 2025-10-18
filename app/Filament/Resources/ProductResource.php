@@ -31,6 +31,11 @@ class ProductResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'description', 'price'];
@@ -74,13 +79,11 @@ class ProductResource extends Resource
                         default => null,
                     })
                     ->mask(RawJs::make('$money($input)'))
-                    ->stripCharacters(',')
-                    ->default(0),
+                    ->stripCharacters(','),
                 TextInput::make('quantity')
                     ->required()
                     ->integer()
-                    ->rules(['gt:0'])
-                    ->default(0),
+                    ->rules(['gt:0']),
                 Select::make('user_id')
                     ->required()
                     ->label('User')
@@ -91,7 +94,7 @@ class ProductResource extends Resource
                     ->preload(),
                 Select::make('category_id')
                     ->required()
-                    ->relationship('category', 'name')
+                    ->relationship('categories', 'name')
                     ->createOptionForm([
                         TextInput::make('name')
                             ->required()
@@ -111,11 +114,11 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('price'),
-                TextColumn::make('quantity'),
-                TextColumn::make('category.name')->badge(),
-                ImageColumn::make('images'),
+                TextColumn::make('name')->sortable(),
+                TextColumn::make('price')->sortable(),
+                TextColumn::make('quantity')->sortable(),
+                TextColumn::make('categories.name')->badge()->sortable(),
+                ImageColumn::make('images')->size(128)->sortable(),
             ])
             ->filters([
                 //

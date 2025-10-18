@@ -7,12 +7,8 @@ use Illuminate\Http\Request;
 
 class OrderService
 {
-    public function getOrder(Request $request, string $confirmation_number)
+    public function getOrder(Request $request, string $confirmation_number, Cart $cart)
     {
-        $cart = Cart::findOrFail([
-            'user_id' => auth('sanctum')->id(),
-        ]);
-
         $subtotal = $cart->calculatedPriceByQuantity();
         $newSubtotal = $subtotal - $request->discount ?? 0;
 

@@ -10,6 +10,10 @@ class FixedValueCoupon extends Model
         'value'
     ];
 
+    protected $casts = [
+        'value' => 'decimal:2',
+    ];
+
     public function discount($order)
     {
         return $this->value;

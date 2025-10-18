@@ -18,7 +18,7 @@ class Coupon extends Model
         return $this->morphTo();
     }
 
-    public function findByCode(string $code)
+    public static function findByCode(string $code)
     {
         return self::where('code', $code)->first();
     }

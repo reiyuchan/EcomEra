@@ -13,7 +13,7 @@ class CategoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('view');
     }
 
     /**
@@ -21,7 +21,7 @@ class CategoryPolicy
      */
     public function view(User $user, Category $category): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('view');
     }
 
     /**
@@ -29,7 +29,7 @@ class CategoryPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('create');
     }
 
     /**
@@ -37,7 +37,7 @@ class CategoryPolicy
      */
     public function update(User $user, Category $category): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('edit');
     }
 
     /**
@@ -45,12 +45,12 @@ class CategoryPolicy
      */
     public function delete(User $user, Category $category): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('delete');
     }
 
-    public function deleteAny(User $user, Category $category): bool
+    public function deleteAny(User $user): bool
     {
-        return $user->hasAnyRole('admin', 'mod');
+        return $user->hasAnyRole('admin') || $user->hasPermissionTo('delete');
     }
 
     /**

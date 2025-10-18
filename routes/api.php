@@ -45,6 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('order')->group(function () {
         Route::post('', [api\OrderController::class, 'store']);
         Route::put('/{order}', [api\OrderController::class, 'update']);
+        Route::get('/{coupon_coded}', [api\CouponController::class, 'show'])->middleware('throttle:5,1');
     });
 });
 

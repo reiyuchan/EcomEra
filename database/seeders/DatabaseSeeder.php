@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
             CategorySeeder::class,
+            ShippingCitySeeder::class,
         ]);
     }
 }

@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Exports\UserExporter;
 use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers\CommissionsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\ReferralsRelationManager;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -27,6 +29,11 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'email';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'email'];
@@ -44,12 +51,10 @@ class UserResource extends Resource
                     ->required(),
                 TextInput::make('password')
                     ->password()
-                    ->required()
-                    ->minLength(8),
+                    ->required(),
                 TextInput::make('confirm_password')
                     ->password()
                     ->required()
-                    ->minLength(8)
                     ->same('password'),
                 Select::make('roles')
                     ->required()
@@ -69,9 +74,13 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('email'),
-                TextColumn::make('roles.name')->badge(),
+                TextColumn::make('name')->sortable(),
+                TextColumn::make('email')->sortable(),
+                TextColumn::make('roles.name')->badge()->sortable(),
+                TextColumn::make('referral.referral_code')->badge()
+                    ->label('Referral Code')->sortable(),
+                TextColumn::make('referral.total_referred_users')
+                    ->label('Referred Users')->badge()->sortable(),
             ])
             ->filters([
                 //
@@ -95,7 +104,8 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ReferralsRelationManager::class,
+            CommissionsRelationManager::class,
         ];
     }
 

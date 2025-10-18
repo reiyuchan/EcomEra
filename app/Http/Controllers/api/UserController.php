@@ -28,7 +28,7 @@ class UserController extends Controller
 
         $user->assignRole('user');
 
-        $value  = $request->name . " " . Str::random(4) . $request->id;
+        $value  = $user->name . " " . Str::random(4) . $user->id;
 
         $slug = Str::slug($value);
 
@@ -69,7 +69,7 @@ class UserController extends Controller
 
         $user->update($request->only('name', 'email'));
 
-        $value = $user->name . " " . $user->id;
+        $value = $user->name . " " . Str::random(4) . $user->id;
 
         $slug = Str::slug($value);
 
@@ -83,6 +83,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+
+
         $user->delete();
 
         return response()->json([
@@ -98,6 +100,8 @@ class UserController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+        abort_if($user->deactivated, Response::HTTP_FORBIDDEN, 'user account is deactivated. Please contact us!');
 
         abort_if(!$user || !Hash::check($request->password, $user->password), Response::HTTP_UNAUTHORIZED, 'invalid credentials');
 
@@ -153,22 +157,21 @@ class UserController extends Controller
 
     public function updateRoleToDesigner(Request $request)
     {
-        $request->validate([
-            'userId' => 'required'
-        ]);
+        $user = $request->user();
 
-        $user = User::findOrFail($request->userId);
+        abort_if($user->hasRole('designer'), Response::HTTP_FORBIDDEN, 'user is already a designer');
 
         $user->assignRole('designer');
 
-        Referral::create([
-            'user_id' => $user->id,
-            'referral_code' => Str::random(4) . $user->id
+        $referral_code = Str::random(4) . $user->id;
+
+        $user->referral()->create([
+            'referral_code' => $referral_code,
         ]);
 
         return response()->json([
-            'message' => 'designer added'
-        ], Response::HTTP_CREATED);
+            'message' => 'promoted to designer'
+        ], Response::HTTP_OK);
     }
 
     public function uploadPicture(Request $request)
@@ -183,7 +186,7 @@ class UserController extends Controller
 
         $image = $request->file('image');
 
-        $image_path = $image->store('images');
+        $image_path = $image->store('images/users');
 
         $user->update([
             'image' => $image_path

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Commissions\Commission;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -20,15 +21,18 @@ class Order extends Model
         'billing_zip_code',
         'billing_discount_code',
         'billing_discount',
+        'billing_shipping_fees',
         'billing_subtotal',
         'billing_total',
         'shipped',
+        'cancelled',
         'user_id',
     ];
 
     protected $casts = [
         'billing_subtotal' => 'decimal:2',
         'billing_total' => 'decimal:2',
+        'billing_discount' => 'decimal:2',
     ];
 
     public function user(): BelongsTo
@@ -39,5 +43,10 @@ class Order extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)->withPivot('quantity');
+    }
+
+    public function commission(): HasOne
+    {
+        return $this->hasOne(Commission::class);
     }
 }

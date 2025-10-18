@@ -18,4 +18,8 @@ class Category extends Model
     {
         return $this->belongsToMany(Product::class);
     }
+    public function pendingProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(PendingProduct::class);
+    }
 }

@@ -10,7 +10,7 @@ class Referral extends Model
     protected $fillable = [
         'user_id',
         'referral_code',
-        'total_referred_users'
+        'total_referred_users',
     ];
 
     public function user(): BelongsTo

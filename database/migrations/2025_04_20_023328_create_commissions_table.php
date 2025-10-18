@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('commissions', function (Blueprint $table) {
             $table->id();
-            $table->decimal('amount', 10, 2);
-            $table->decimal('rate', 5, 2);
+            $table->unsignedBigInteger('commissionable_id')->default(0);
+            $table->string('commissionable_type');
+            $table->string('amount');
+            $table->boolean('available')->default(false);
+            $table->boolean('paid')->default(false);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -13,11 +13,9 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::insert([
-            ['name' => 'create'],
-            ['name' => 'edit'],
-            ['name' => 'view'],
-            ['name' => 'delete'],
-        ]);
+        $permissions = ['create', 'edit', 'view', 'delete'];
+        foreach ($permissions as $p) {
+            Permission::firstOrCreate(['name' => $p]);
+        }
     }
 }

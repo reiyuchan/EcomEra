@@ -35,15 +35,17 @@ class PendingProductController extends Controller
             'category_code' => 'required|string|max:255',
         ]);
 
+        $product_code = Str::upper(Str::random(4)) . $request->category_code;
+
         $pendingProduct = $user->pendingProducts()->create([
             'name' => $request->name,
             'details' => $request->details,
             'description' => $request->description,
-            'product_code' => Str::upper(Str::random(4)) . $request->category_code,
+            'product_code' => $product_code,
             'images' => $request->images,
         ]);
 
-        $value = $request->name . " " . Str::random(4) . $request->id;
+        $value = $pendingProduct->name . " " . Str::random(4) . $pendingProduct->id;
 
         $slug = Str::slug($value);
 

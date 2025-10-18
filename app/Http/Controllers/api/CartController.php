@@ -22,6 +22,7 @@ class CartController extends Controller
             'data' => $cartItems,
             'meta' => [
                 'subtotal' => $cart->calculatedPriceByQuantity(),
+                'discounted_price' => $cart->calculatedDiscountByQuantity(),
             ]
 
         ], Response::HTTP_OK);
@@ -36,13 +37,13 @@ class CartController extends Controller
 
         $product = Product::findOrFail($request->id);
 
-        $cart = Cart::query()->firstOrCreate([
+        $cart = Cart::firstOrCreate([
             'user_id' => auth('sanctum')->id(),
         ]);
 
-        abort_if($cart->getTotalQuantity() + $request->quantity  > 50, 403, 'quantity provided exceeds max limit 50');
+        abort_if($cart->getTotalQuantity() + $request->quantity  > 50, Response::HTTP_FORBIDDEN, 'quantity provided exceeds max limit 50');
 
-        abort_if($cart->items()->find($product->getKey()), 403, 'product already exist in cart');
+        abort_if($cart->items()->find($product->getKey()), Response::HTTP_FORBIDDEN, 'product already exist in cart');
 
         $cart->storeItem($product);
 

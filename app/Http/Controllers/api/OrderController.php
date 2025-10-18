@@ -45,11 +45,11 @@ class OrderController extends Controller
 
         $user =  $request->user();
 
-        $order = $user->orders()->create($orderService->getOrder($request, $confirmation_number));
-
-        $cart = Cart::firstOrCreate([
+        $cart = Cart::findOrFail([
             'user_id' => auth('sanctum')->id(),
         ]);
+
+        $order = $user->orders()->create($orderService->getOrder($request, $confirmation_number, $cart));
 
         $cartItems = $cart->items()->with('itemable')->get();
 

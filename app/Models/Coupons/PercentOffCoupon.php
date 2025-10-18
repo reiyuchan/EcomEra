@@ -10,8 +10,12 @@ class PercentOffCoupon extends Model
         'percent_off'
     ];
 
+    protected $casts = [
+        'percent_off' => 'decimal:2',
+    ];
+
     public function discount($order)
     {
-        return $this->precent_off * $order;
+        return ($this->precent_off / 100) * $order;
     }
 }

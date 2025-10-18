@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class PendingProduct extends Model
 {
@@ -16,6 +18,7 @@ class PendingProduct extends Model
         'price',
         'quantity',
         'images',
+        'approved',
         'user_id',
     ];
 
@@ -24,18 +27,20 @@ class PendingProduct extends Model
         'price' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        self::deleted(function (PendingProduct $record) {
+            Storage::disk('public')->delete($record->images);
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function product(): BelongsTo
+    public function categories(): BelongsToMany
     {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
     }
 }
